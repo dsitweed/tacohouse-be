@@ -3,6 +3,18 @@ import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { AuthModule } from './auth/auth.module';
+import { CoreModule } from './core/core.module';
+import { UsersModule } from './users/users.module';
+import { BuildingsModule } from './buildings/buildings.module';
+import { RoomsModule } from './rooms/rooms.module';
+import { BuildingUnitPricesModule } from './building-unit-prices/building-unit-prices.module';
+import { RoomUnitPricesModule } from './room-unit-prices/room-unit-prices.module';
+import { InvoicesModule } from './invoices/invoices.module';
+import { FacilitiesModule } from './facilities/facilities.module';
+import { ManagersModule } from './managers/managers.module';
+import { FileModule } from './firebase/file.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -25,7 +37,19 @@ import * as Joi from 'joi';
         FIREBASE_STORAGE_BUCKET: Joi.string().required(),
       }),
     }),
+    CoreModule,
     PrismaModule,
+    AuthModule,
+    UsersModule,
+    BuildingsModule,
+    RoomsModule,
+    BuildingUnitPricesModule,
+    RoomUnitPricesModule,
+    InvoicesModule,
+    FacilitiesModule,
+    ManagersModule,
+    FileModule,
+    ChatModule,
   ],
   controllers: [AppController],
 })

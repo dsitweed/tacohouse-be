@@ -2,12 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SocketIoAdapter } from './common/adapters/socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Main (main.ts)');
 
   /* App config */
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
@@ -15,6 +17,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Taco House backend API')
     .setDescription('Taco House API documentation')
