@@ -51,7 +51,7 @@ export class FirebaseService implements OnModuleInit {
     }
   }
 
-  async deleteUploadedFile(fileName: string) {
+  async deleteUploadedFile(fileName: string): Promise<any> {
     try {
       const file = this.bucket.file(fileName);
       return file.delete();
