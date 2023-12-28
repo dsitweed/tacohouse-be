@@ -197,13 +197,18 @@ yarn add -D dotenv-cli
 yarn add joi
 
 # Sử dụng socket.io
-@nestjs/websockets @nestjs/platform-socket.io
+yarn add @nestjs/websockets @nestjs/platform-socket.io
 
 # Fire base Admin for server
 yarn add firebase-admin
 # File upload nestjs
 yarn add -D @types/multer
 
+# Faker
+yarn add -D @faker-js/faker
+
+# Swagger
+yarn add @nestjs/swagger
 ```
 
 ### `Firebase`

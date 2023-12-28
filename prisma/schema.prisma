@@ -1,0 +1,267 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  TENANT
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String // hashed
+  role         UserRole
+  refreshToken String? // hashed
+  isActive     Boolean  @default(true)
+
+  // Private infomation
+  firstName       String?
+  lastName        String?
+  address         String?
+  citizenNumber   String?
+  phoneNumber     String?
+  avatarUrl       String?
+  citizenImageUrl String[]
+  dob             DateTime? // date of birth
+
+  // For role Manager
+  buildings Building[]
+
+  // For role Tenant
+  roomId    Int?
+  room      Room? @relation(fields: [roomId], references: [id])
+  creatorId Int?
+
+  // Relation ship off manager create list of
+  creator User?  @relation(name: "create_tenant", fields: [creatorId], references: [id])
+  tenants User[] @relation(name: "create_tenant")
+
+  sentMessages    Message[] @relation(name: "sender_message")
+  receivedMesages Message[] @relation(name: "receiver_message")
+  votes           Vote[]    @relation(name: "vote_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Message {
+  id         Int    @id @default(autoincrement())
+  senderId   Int
+  sender     User   @relation(name: "sender_message", fields: [senderId], references: [id])
+  receiverId Int
+  receiver   User   @relation(name: "receiver_message", fields: [receiverId], references: [id])
+  content    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("messages")
+}
+
+enum VoteType {
+  ROOM // vote for room
+  USER // vote for tenant, voter for manager
+}
+
+model Vote {
+  id       Int      @id @default(autoincrement())
+  voterId  Int
+  voter    User     @relation(name: "vote_relation", fields: [voterId], references: [id])
+  targetId Int
+  type     VoteType
+  star     Decimal
+  comment  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("votes")
+}
+
+enum BuildingType {
+  HOSTEL
+  ENTIRE_HOUSE
+}
+
+model Building {
+  id            Int          @id @default(autoincrement())
+  name          String
+  address       String
+  brandImageUrl String?
+  type          BuildingType
+
+  rooms              Room[]
+  invoices           Invoice[]
+  buildingUnitPrices BuildingUnitPrice[]
+
+  // Relation fileds
+  ownerId Int
+  owner   User @relation(fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ownerId, name])
+  @@map("buildings")
+}
+
+model BuildingUnitPrice {
+  id    Int    @id @default(autoincrement())
+  name  String
+  price Int
+
+  buildingId Int
+  building   Building @relation(fields: [buildingId], references: [id])
+
+  roomUnitPrices RoomUnitPrice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([buildingId, name])
+  @@map("building_unit_prices")
+}
+
+model RoomUnitPrice {
+  id      Int @id @default(autoincrement())
+  before  Int
+  current Int
+
+  // relation fields
+  roomId              Int
+  room                Room              @relation(fields: [roomId], references: [id])
+  buildingUnitPriceId Int
+  buildingUnitPrice   BuildingUnitPrice @relation(fields: [buildingUnitPriceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roomId, buildingUnitPriceId])
+  @@map("room_unit_prices")
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  imageUrls String[]
+  name      String
+  maxTenant Int?
+  price     Int
+  area      Decimal
+
+  isActive Boolean @default(true) // isActive = false <=> the room is rented or the room is closed for repair
+
+  dateBecomeAvailable DateTime? // the date that the room will be vacant in the future (old tenants leave)
+  dueDate             DateTime? // monthly payment date
+  deposit             Int? // rent deposit: advance payment that a tenant must make to a landlord before moving into a rental house
+  debt                Int?
+
+  buildingId Int
+  building   Building @relation(fields: [buildingId], references: [id])
+
+  // Information for post
+  description String?
+
+  // Relation fileds
+  tenants        User[]
+  facilities     Facility[]
+  invoices       Invoice[]
+  roomUnitPrices RoomUnitPrice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([buildingId, name])
+  @@map("rooms")
+}
+
+model FacilityType {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  // Relation fields
+  facilities Facility[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("facility_types")
+}
+
+enum FacilityStatus {
+  BAD
+  FIXING
+  GOOD
+}
+
+model Facility {
+  id Int @id @default(autoincrement())
+
+  name     String
+  status   FacilityStatus @default(GOOD)
+  price    Int?
+  buyPrice Int? // original purchase price
+  brand    String?
+
+  // Relation fields
+  facilityTypeId Int
+  facilityType   FacilityType @relation(fields: [facilityTypeId], references: [id])
+  roomId         Int
+  room           Room         @relation(fields: [roomId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("facilities")
+}
+
+model InvoiceType {
+  id       Int       @id @default(autoincrement())
+  name     String
+  invoices Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("invoice_types")
+}
+
+enum InvoiceStatus {
+  OVERDUE
+  PENDING
+  PAID
+}
+
+model Invoice {
+  id     Int           @id @default(autoincrement())
+  total  Int
+  status InvoiceStatus @default(PENDING)
+
+  // relation fields
+  tenantIds     Int[]
+  roomId        Int
+  room          Room        @relation(fields: [roomId], references: [id])
+  invoiceTypeId Int
+  invoiceType   InvoiceType @relation(fields: [invoiceTypeId], references: [id])
+
+  // Why need buildingId ?
+  //Answer:  Serves for future statistics, and for cases of changing room and building relationships
+  buildingId Int
+  building   Building @relation(fields: [buildingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("invoices")
+}
