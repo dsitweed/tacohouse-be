@@ -23,7 +23,9 @@ import { JwtGuard, RolesGuard } from 'src/common/guard';
 import { GetUser, Roles } from 'src/common/decorator';
 import { UserRole } from '@prisma/client';
 import { QueryFindAllInvoiceDto } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Invoices')
 @UseGuards(JwtGuard)
 @Controller('invoices')
 export class InvoicesController {

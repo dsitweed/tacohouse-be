@@ -15,7 +15,9 @@ import { JwtGuard, RolesGuard } from 'src/common/guard';
 import { GetUser, Roles } from 'src/common/decorator';
 import { UserRole } from '@prisma/client';
 import { CreateTenantDto, QueryFindAllRoomDto, UpdateTenantDto } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Managers')
 @UseGuards(JwtGuard, RolesGuard)
 @Roles(UserRole.MANAGER)
 @Controller('managers')

@@ -80,8 +80,6 @@ export class RoomsService {
           buildingId: buildingId,
           isActive: isActive,
         },
-        skip: offset,
-        take: limit,
         include: {
           tenants: true,
           roomUnitPrices: {
@@ -108,6 +106,8 @@ export class RoomsService {
             },
           },
         },
+        skip: offset,
+        take: limit,
       }),
     ]);
 
@@ -124,14 +124,7 @@ export class RoomsService {
         tenants: true,
         roomUnitPrices: true,
         facilities: true,
-        building: {
-          select: {
-            id: true,
-            address: true,
-            name: true,
-            type: true,
-          },
-        },
+        building: true,
       },
     });
 
@@ -203,6 +196,23 @@ export class RoomsService {
     ]);
 
     return room;
+  }
+
+  async getOwnerInfo(roomId: number) {
+    const room = await this.prisma.room.findUnique({
+      where: { id: roomId },
+      include: {
+        building: {
+          include: {
+            owner: true,
+          },
+        },
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, refreshToken, ...owner } = room.building.owner;
+    return owner;
   }
 
   /* HELP FUNCTION */

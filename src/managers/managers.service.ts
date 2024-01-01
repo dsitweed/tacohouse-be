@@ -88,12 +88,8 @@ export class ManagersService {
       },
       include: {
         tenants: true,
-        building: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+        building: true,
+        // need optimize
         roomUnitPrices: {
           include: {
             buildingUnitPrice: {
@@ -107,6 +103,9 @@ export class ManagersService {
       },
       take: limit,
       skip: offset,
+      orderBy: {
+        name: 'asc',
+      },
     });
 
     for (let index = 0; index < rawList.length; index++) {

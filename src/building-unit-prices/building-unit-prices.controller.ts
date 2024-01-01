@@ -17,7 +17,9 @@ import { GetUser, Roles } from 'src/common/decorator';
 import { JwtGuard, RolesGuard } from 'src/common/guard';
 import { QueryFindAllBuildingUnitPriceDto } from './dto';
 import { UserRole } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Building unit prices')
 @UseGuards(JwtGuard, RolesGuard)
 @Roles(UserRole.MANAGER)
 @Controller('building-unit-prices')

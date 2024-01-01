@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
   Body,
-  Patch,
+  Controller,
   Delete,
+  Get,
+  Patch,
   UseGuards,
 } from '@nestjs/common';
-import { MeService } from './me.service';
-import { JwtGuard } from 'src/common/guard';
-import { GetUser } from 'src/common/decorator';
-import { User } from '@prisma/client';
-import { UpdateUserDtoPartial } from '../dto';
 import { ApiTags } from '@nestjs/swagger';
+import { User } from '@prisma/client';
+import { GetUser } from 'src/common/decorator';
+import { JwtGuard } from 'src/common/guard';
+import { UpdateUserDtoPartial } from '../dto';
+import { MeService } from './me.service';
 
 /**
  * This model for user manipulate individuals' profiles

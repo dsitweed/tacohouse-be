@@ -1,7 +1,7 @@
+import { faker } from '@faker-js/faker';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDtoPartial } from '../dto';
-import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class MeService {
@@ -15,7 +15,7 @@ export class MeService {
       });
 
       delete updatedUser.password;
-      return { message: 'Update success', data: updatedUser };
+      return updatedUser;
     } catch (error) {
       throw new BadRequestException(`Have error: ${error.message}`);
     }

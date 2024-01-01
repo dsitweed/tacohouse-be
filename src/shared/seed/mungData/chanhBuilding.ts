@@ -9,6 +9,9 @@ export interface RawRoomsI {
   electricityPrice: number;
   waterPrice: number;
   environmentPrice: number;
+  lightPrice?: number;
+  wifiPrice?: number;
+  debt?: number;
   total: number;
   area: number;
 }

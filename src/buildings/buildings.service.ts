@@ -40,6 +40,11 @@ export class BuildingsService {
           },
         },
       },
+      orderBy: {
+        rooms: {
+          _count: 'desc',
+        },
+      },
     });
   }
 

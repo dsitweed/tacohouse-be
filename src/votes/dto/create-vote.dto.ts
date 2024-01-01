@@ -1,17 +1,17 @@
 import { VoteType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
-  IsDecimal,
   IsEnum,
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
+  Max,
+  Min,
 } from 'class-validator';
 
-export class VoteDto {
+export class CreateVoteDto {
   @IsNotEmpty()
-  @IsInt()
-  @Type(() => Number)
+  @IsNumber()
   targetId: number;
 
   @IsNotEmpty()
@@ -19,7 +19,10 @@ export class VoteDto {
   type: VoteType;
 
   @IsNotEmpty()
-  @IsDecimal()
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  @Type(() => Number)
   star: number;
 
   @IsNotEmpty()

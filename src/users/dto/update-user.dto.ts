@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
 import {
+  IsArray,
   IsString,
   Length,
   Matches,
@@ -39,7 +40,8 @@ export class UpdateUserDto {
   @IsString()
   avatarUrl: string;
 
-  citizenImageUrl: string[];
+  @IsArray()
+  citizenImageUrls: string[];
 
   @IsString()
   dob: string; // dob
