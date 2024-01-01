@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsDateString,
   IsInt,
   IsNotEmpty,
@@ -32,8 +33,8 @@ export class CreateTenantDto {
   @IsString()
   avatarUrl?: string;
 
-  @IsOptional()
-  citizenImageUrl?: string[];
+  @IsArray()
+  citizenImageUrls?: string[];
 
   @IsNotEmpty()
   @IsDateString()

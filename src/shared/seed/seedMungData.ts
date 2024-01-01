@@ -8,6 +8,7 @@ import {
 import * as argon from 'argon2';
 import { RawRoomsI, chanhRooms } from './mungData/chanhBuilding';
 import { faker } from '@faker-js/faker';
+import { mungRooms } from './mungData/mungBuilding';
 
 interface createBuildingI {
   name: string;
@@ -60,6 +61,7 @@ export async function seedMungData() {
         { name: 'light', price: 20000 },
         { name: 'environment', price: 30000 },
       ],
+      roomData: mungRooms,
     },
     {
       name: 'Chanh',

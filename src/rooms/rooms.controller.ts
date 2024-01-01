@@ -1,21 +1,23 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { RoomsService } from './rooms.service';
+import { ApiTags } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 import { GetUser, Roles } from 'src/common/decorator';
 import { JwtGuard, RolesGuard } from 'src/common/guard';
-import { UserRole } from '@prisma/client';
 import { CreateRoomDto, QueryFindAllRoomDto, UpdateRoomDto } from './dto';
+import { RoomsService } from './rooms.service';
 
+@ApiTags('Rooms')
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
@@ -28,7 +30,6 @@ export class RoomsController {
   }
 
   /**
-   *
    * @param managerId
    * @param queryFindAllRoom
    * @returns rooms,
@@ -61,5 +62,10 @@ export class RoomsController {
   @Delete(':id')
   remove(@GetUser('id') userId: number, @Param('id', ParseIntPipe) id: number) {
     return this.roomsService.remove(userId, id);
+  }
+
+  @Get(':id/owner')
+  getOwnerInfo(@Param('id', ParseIntPipe) roomId: number) {
+    return this.roomsService.getOwnerInfo(roomId);
   }
 }

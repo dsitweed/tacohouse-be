@@ -15,6 +15,7 @@ import { FacilitiesModule } from './facilities/facilities.module';
 import { ManagersModule } from './managers/managers.module';
 import { FileModule } from './firebase/file.module';
 import { ChatModule } from './chat/chat.module';
+import { VotesModule } from './votes/votes.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ChatModule } from './chat/chat.module';
     ManagersModule,
     FileModule,
     ChatModule,
+    VotesModule,
   ],
   controllers: [AppController],
 })

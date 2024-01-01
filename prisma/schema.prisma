@@ -25,14 +25,14 @@ model User {
   isActive     Boolean  @default(true)
 
   // Private infomation
-  firstName       String?
-  lastName        String?
-  address         String?
-  citizenNumber   String?
-  phoneNumber     String?
-  avatarUrl       String?
-  citizenImageUrl String[]
-  dob             DateTime? // date of birth
+  firstName        String?
+  lastName         String?
+  address          String?
+  citizenNumber    String?
+  phoneNumber      String?
+  avatarUrl        String?
+  citizenImageUrls String[]
+  dob              DateTime? // date of birth
 
   // For role Manager
   buildings Building[]

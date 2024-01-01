@@ -27,7 +27,7 @@ CREATE TABLE "users" (
     "citizenNumber" TEXT,
     "phoneNumber" TEXT,
     "avatarUrl" TEXT,
-    "citizenImageUrl" TEXT[],
+    "citizenImageUrls" TEXT[],
     "dob" TIMESTAMP(3),
     "roomId" INTEGER,
     "creatorId" INTEGER,

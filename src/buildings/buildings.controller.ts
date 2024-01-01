@@ -15,7 +15,9 @@ import { UpdateBuildingDto } from './dto/update-building.dto';
 import { JwtGuard, RolesGuard } from 'src/common/guard';
 import { UserRole } from '@prisma/client';
 import { GetUser, Roles } from 'src/common/decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Buildings')
 @UseGuards(JwtGuard, RolesGuard)
 @Roles(UserRole.MANAGER, UserRole.ADMIN)
 @Controller('buildings')
