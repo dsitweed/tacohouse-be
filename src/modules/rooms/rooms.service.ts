@@ -8,7 +8,12 @@ import { plainToInstance } from 'class-transformer';
 import { PrismaService } from 'nestjs-prisma';
 import { PaginationDto } from 'src/common/dto';
 import { BuildingsService } from 'src/modules/buildings/buildings.service';
-import { CreateRoomDto, GetListRoomQueryDto, UpdateRoomDto } from './dto';
+import {
+  CreateRoomDto,
+  GetListRoomQueryDto,
+  GetOwnerInfoResDto,
+  UpdateRoomDto,
+} from './contracts';
 
 @Injectable()
 export class RoomsService {
@@ -17,61 +22,45 @@ export class RoomsService {
     private buildingService: BuildingsService,
   ) {}
 
-  async create(userId: number, createRoomDto: CreateRoomDto) {
-    const { name, buildingId } = createRoomDto;
+  async create(userId: number, data: CreateRoomDto) {
+    const { name, buildingId } = data;
 
     const building = await this.buildingService.findOne(
       userId,
-      createRoomDto.buildingId,
+      data.buildingId,
     );
 
-    // check room exits with constrain room unique [name, building.Id]
-    const isDuplicateRoomName = await this.prisma.room.findUnique({
-      where: { buildingId_name: { name, buildingId } },
-    });
-    if (isDuplicateRoomName) {
-      throw new BadRequestException('Room name cannot duplicated');
-    }
+    await this.checkDuplicateRoomName(name, buildingId);
 
-    // create new room
-    const newRoom = await this.prisma.room.create({
-      data: {
-        ...createRoomDto,
-      },
-    });
+    const response = await this.prisma.$transaction(async (tx) => {
+      const newRoom = await tx.room.create({ data });
 
-    // create room unit price if room is belong to HOSTEL building
-    if (building.type === BuildingType.HOSTEL) {
-      building.buildingUnitPrices.forEach(async (item) => {
-        await this.prisma.roomUnitPrice.create({
-          data: {
+      if (building.type === BuildingType.HOSTEL) {
+        tx.roomUnitPrice.createMany({
+          data: building.buildingUnitPrices.map((item) => ({
             before: 0,
             current: 0,
             roomId: newRoom.id,
             buildingUnitPriceId: item.id,
-          },
+          })),
         });
-      });
-    }
+      }
 
-    return newRoom;
+      return newRoom;
+    });
+
+    return response;
   }
 
-  async findAll(queryFindAllRoom: GetListRoomQueryDto) {
-    const { buildingId, limit, offset, isActive } = queryFindAllRoom;
+  async findAll(query: GetListRoomQueryDto): Promise<PaginationDto> {
+    const { buildingId, take, skip, isActive } = query;
 
     const [count, items] = await this.prisma.$transaction([
-      this.prisma.room.count({
-        where: {
-          buildingId: buildingId,
-          isActive: isActive,
-        },
-      }),
+      this.prisma.room.count({ where: { buildingId, isActive } }),
       this.prisma.room.findMany({
-        where: {
-          buildingId: buildingId,
-          isActive: isActive,
-        },
+        skip,
+        take,
+        where: { buildingId, isActive },
         include: {
           tenants: true,
           roomUnitPrices: {
@@ -98,20 +87,16 @@ export class RoomsService {
             },
           },
         },
-        skip: offset,
-        take: limit,
       }),
     ]);
 
-    return plainToInstance(PaginationDto, { count, items });
+    return { count, items };
   }
 
   async findOne(id: number) {
     // Check the room belong to the current user
     const room = await this.prisma.room.findUnique({
-      where: {
-        id: id,
-      },
+      where: { id },
       include: {
         tenants: true,
         roomUnitPrices: true,
@@ -127,35 +112,18 @@ export class RoomsService {
     return room;
   }
 
-  async update(userId: number, id: number, updateRoomDto: UpdateRoomDto) {
+  async update(ownerId: number, id: number, data: UpdateRoomDto) {
     const room = await this.prisma.room.findUnique({
-      where: {
-        id: id,
-        building: {
-          ownerId: userId,
-        },
-      },
+      where: { id, building: { ownerId } },
     });
+
     if (!room) {
       throw new NotFoundException('Not found room!');
     }
 
-    const isDuplicateName = await this.isDuplicateRoomName(
-      updateRoomDto.name,
-      room.buildingId,
-      id,
-    );
+    await this.checkDuplicateRoomName(data.name, room.buildingId, id);
 
-    if (isDuplicateName) {
-      throw new BadRequestException('Room name cannot be duplicated');
-    }
-
-    return this.prisma.room.update({
-      where: { id: room.id },
-      data: {
-        ...updateRoomDto,
-      },
-    });
+    return this.prisma.room.update({ where: { id }, data });
   }
 
   async remove(userId: number, id: number) {
@@ -202,32 +170,25 @@ export class RoomsService {
       },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, refreshToken, ...owner } = room.building.owner;
-    return owner;
+    return plainToInstance(GetOwnerInfoResDto, room.building.owner);
   }
 
-  /* HELP FUNCTION */
-
   /**
-   * Check to true if the room name is duplicated
-   * 1 building can not have 2 room have same name
-   * @param name
-   * @param buildingId
-   * @returns boolean
+   * Check if room name in the same building is duplicated
    */
-  private async isDuplicateRoomName(
+  private async checkDuplicateRoomName(
     name: string | null,
     buildingId: number,
-    roomId: number,
+    roomId?: number,
   ) {
-    if (!name) return false;
+    if (!name) return;
 
     const existingRoom = await this.prisma.room.findUnique({
       where: { buildingId_name: { buildingId, name } },
     });
 
-    if (existingRoom && existingRoom.id !== roomId) return true;
-    else return false;
+    if (existingRoom && existingRoom.id !== roomId) {
+      throw new BadRequestException('Room name cannot be duplicated');
+    }
   }
 }

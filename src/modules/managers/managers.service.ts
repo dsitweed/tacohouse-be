@@ -77,7 +77,7 @@ export class ManagersService {
   }
 
   async findAllRooms(userId: number, query: GetListRoomQueryDto) {
-    const { buildingId, limit, offset } = query;
+    const { buildingId, take: limit, skip: offset } = query;
 
     const rawList = await this.prisma.room.findMany({
       where: {

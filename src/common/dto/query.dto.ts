@@ -14,11 +14,11 @@ export class BaseQueryDto {
   @Type(() => Number)
   pageSize: number = 10;
 
-  get offset(): number {
+  get skip(): number {
     return (this.pageIndex - 1) * this.pageSize;
   }
 
-  get limit(): number {
+  get take(): number {
     return this.pageSize;
   }
 }

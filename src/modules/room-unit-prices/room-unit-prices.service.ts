@@ -54,8 +54,8 @@ export class RoomUnitPricesService {
       where: {
         roomId: query.roomId,
       },
-      skip: query.offset,
-      take: query.limit,
+      skip: query.skip,
+      take: query.take,
     });
   }
 

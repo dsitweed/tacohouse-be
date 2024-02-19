@@ -29,7 +29,7 @@ export class FacilitiesService {
   }
 
   async findAll(query: QueryFindAllFacilityDto) {
-    const { limit, offset, ...otherConditions } = query;
+    const { take: limit, skip: offset, ...otherConditions } = query;
 
     return this.prisma.facility.findMany({
       where: {

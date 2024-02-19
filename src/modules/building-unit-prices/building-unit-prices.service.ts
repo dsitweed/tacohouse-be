@@ -38,18 +38,18 @@ export class BuildingUnitPricesService {
   }
 
   async findAll(query: QueryFindAllBuildingUnitPriceDto) {
+    const { buildingId, skip, take } = query;
+
     return this.prisma.buildingUnitPrice.findMany({
-      where: {
-        buildingId: query.buildingId,
-      },
-      skip: query.offset,
-      take: query.limit,
+      where: { buildingId },
+      skip,
+      take,
     });
   }
 
   async findOne(id: number) {
     const unitPrice = await this.prisma.buildingUnitPrice.findUnique({
-      where: { id: id },
+      where: { id },
     });
     if (!unitPrice) {
       throw new NotFoundException('Not found building unit price');

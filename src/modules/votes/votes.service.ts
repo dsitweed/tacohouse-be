@@ -28,7 +28,7 @@ export class VotesService {
       throw new BadRequestException('TargetId not exits');
     }
 
-    const { limit, offset, ...otherCondition } = query;
+    const { take: limit, skip: offset, ...otherCondition } = query;
     return this.prisma.vote.findMany({
       where: {
         ...otherCondition,

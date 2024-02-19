@@ -14,7 +14,12 @@ import { ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { GetUser, Roles } from 'src/common/decorator';
 import { JwtGuard, RolesGuard } from 'src/common/guard';
-import { CreateRoomDto, GetListRoomQueryDto, UpdateRoomDto } from './dto';
+import { GetOwnerInfoResDto } from './contracts';
+import {
+  CreateRoomDto,
+  GetListRoomQueryDto,
+  UpdateRoomDto,
+} from './contracts/input';
 import { RoomsService } from './rooms.service';
 
 @ApiTags('Rooms')
@@ -65,7 +70,9 @@ export class RoomsController {
   }
 
   @Get(':id/owner')
-  getOwnerInfo(@Param('id', ParseIntPipe) roomId: number) {
+  getOwnerInfo(
+    @Param('id', ParseIntPipe) roomId: number,
+  ): Promise<GetOwnerInfoResDto> {
     return this.roomsService.getOwnerInfo(roomId);
   }
 }

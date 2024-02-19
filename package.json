@@ -2,7 +2,7 @@
   "name": "tacohouse-be",
   "version": "1.0.0",
   "prisma": {
-    "seed": "ts-node src/shared/seed.ts"
+    "seed": "ts-node src/shared/seed"
   },
   "description": "Nest TypeScript repository for Taco House App",
   "author": "",

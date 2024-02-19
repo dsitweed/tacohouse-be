@@ -42,7 +42,7 @@ export class InvoicesService {
   }
 
   async findAll(query: QueryFindAllInvoiceDto) {
-    const { offset, limit, ...otherConditions } = query;
+    const { skip: offset, take: limit, ...otherConditions } = query;
 
     return this.prisma.invoice.findMany({
       where: {
