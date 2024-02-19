@@ -1,7 +1,12 @@
-export class PaginationDto {
-  constructor(
-    public count: number,
-    public items: any[],
-    public message?: string,
-  ) {}
+import { Expose } from 'class-transformer';
+
+export class PaginationDto<T = any> {
+  @Expose()
+  count: number;
+
+  @Expose()
+  items: T[];
+
+  @Expose()
+  message?: string;
 }
