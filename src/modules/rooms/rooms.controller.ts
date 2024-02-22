@@ -4,15 +4,15 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { GetUser, Roles } from 'src/common/decorator';
+import { GetStaffId, Roles } from 'src/common/decorator';
+import { IdNumberParams } from 'src/common/dto/query.dto';
 import { JwtGuard, RolesGuard } from 'src/common/guard';
 import { GetOwnerInfoResDto } from './contracts';
 import {
@@ -30,49 +30,53 @@ export class RoomsController {
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
   @Post()
-  create(@GetUser('id') userId: number, @Body() createRoomDto: CreateRoomDto) {
-    return this.roomsService.create(userId, createRoomDto);
+  @ApiOperation({ summary: 'Create new room' })
+  createRoom(
+    @GetStaffId() staffId: number,
+    @Body() data: CreateRoomDto,
+  ): Promise<number> {
+    return this.roomsService.createRoom(staffId, data);
   }
 
   /**
-   * @param managerId
-   * @param queryFindAllRoom
-   * @returns rooms,
    * Just manager can see multiple room
    * Now not have route for USER, OR TENANT
    */
   @Get()
-  findAll(@Query() queryFindAllRoom: GetListRoomQueryDto) {
-    return this.roomsService.findAll(queryFindAllRoom);
+  @ApiOperation({ summary: 'Get list room by buildingId' })
+  getListRoom(@Query() query: GetListRoomQueryDto) {
+    return this.roomsService.getListRoom(query);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.roomsService.findOne(id);
+  @ApiOperation({ summary: 'Get room info' })
+  getRoomInfo(@Param() params: IdNumberParams) {
+    return this.roomsService.getRoomInfo(params.id);
   }
 
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
   @Patch(':id')
-  update(
-    @GetUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateRoomDto: UpdateRoomDto,
+  @ApiOperation({ summary: 'Update room info' })
+  updateRoom(
+    @GetStaffId() staffId: number,
+    @Param() params: IdNumberParams,
+    @Body() data: UpdateRoomDto,
   ) {
-    return this.roomsService.update(userId, id, updateRoomDto);
+    return this.roomsService.updateRoom(staffId, params.id, data);
   }
 
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
   @Delete(':id')
-  remove(@GetUser('id') userId: number, @Param('id', ParseIntPipe) id: number) {
-    return this.roomsService.remove(userId, id);
+  @ApiOperation({ summary: 'Delete room' })
+  deleteRoom(@GetStaffId() staffId: number, @Param() params: IdNumberParams) {
+    return this.roomsService.remove(staffId, params.id);
   }
 
   @Get(':id/owner')
-  getOwnerInfo(
-    @Param('id', ParseIntPipe) roomId: number,
-  ): Promise<GetOwnerInfoResDto> {
-    return this.roomsService.getOwnerInfo(roomId);
+  @ApiOperation({ summary: "Get room's owner info" })
+  getOwnerInfo(@Param() params: IdNumberParams): Promise<GetOwnerInfoResDto> {
+    return this.roomsService.getOwnerInfo(params.id);
   }
 }

@@ -22,7 +22,7 @@ export class RoomsService {
     private buildingService: BuildingsService,
   ) {}
 
-  async create(userId: number, data: CreateRoomDto) {
+  async createRoom(userId: number, data: CreateRoomDto) {
     const { name, buildingId } = data;
 
     const building = await this.buildingService.findOne(
@@ -49,10 +49,10 @@ export class RoomsService {
       return newRoom;
     });
 
-    return response;
+    return response.id;
   }
 
-  async findAll(query: GetListRoomQueryDto): Promise<PaginationDto> {
+  async getListRoom(query: GetListRoomQueryDto): Promise<PaginationDto> {
     const { buildingId, take, skip, isActive } = query;
 
     const [count, items] = await this.prisma.$transaction([
@@ -93,7 +93,7 @@ export class RoomsService {
     return { count, items };
   }
 
-  async findOne(id: number) {
+  async getRoomInfo(id: number) {
     // Check the room belong to the current user
     const room = await this.prisma.room.findUnique({
       where: { id },
@@ -112,7 +112,7 @@ export class RoomsService {
     return room;
   }
 
-  async update(ownerId: number, id: number, data: UpdateRoomDto) {
+  async updateRoom(ownerId: number, id: number, data: UpdateRoomDto) {
     const room = await this.prisma.room.findUnique({
       where: { id, building: { ownerId } },
     });
