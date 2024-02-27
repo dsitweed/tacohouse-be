@@ -106,7 +106,6 @@ model Building {
   invoices           Invoice[]
   buildingUnitPrices BuildingUnitPrice[]
 
-  // Relation fileds
   ownerId Int
   owner   User @relation(fields: [ownerId], references: [id])
 

@@ -1,61 +1,78 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
   UseGuards,
-  ParseIntPipe,
 } from '@nestjs/common';
-import { BuildingsService } from './buildings.service';
-import { CreateBuildingDto } from './dto/create-building.dto';
-import { UpdateBuildingDto } from './dto/update-building.dto';
-import { JwtGuard, RolesGuard } from 'src/common/guard';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { GetUser, Roles } from 'src/common/decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { GetStaffId, Roles } from 'src/common/decorator';
+import { IdNumberParams } from 'src/common/dto/query.dto';
+import { JwtGuard, RolesGuard } from 'src/common/guard';
+import { BuildingsService } from './buildings.service';
+import { CreateBuildingDto, UpdateBuildingDto } from './contracts/requests/';
+import { CreatedResponseDto } from 'src/common/dto/created-response.dto';
 
-@ApiTags('Buildings')
+@Controller('buildings')
 @UseGuards(JwtGuard, RolesGuard)
 @Roles(UserRole.MANAGER, UserRole.ADMIN)
-@Controller('buildings')
+@ApiTags('Buildings')
+@ApiBearerAuth()
 export class BuildingsController {
   constructor(private readonly buildingsService: BuildingsService) {}
 
   @Post()
-  create(
-    @GetUser('id') userId: number,
-    @Body() createBuildingDto: CreateBuildingDto,
+  @ApiOperation({ summary: 'Create building' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: CreatedResponseDto,
+  })
+  createBuilding(
+    @GetStaffId() staffId: number,
+    @Body() data: CreateBuildingDto,
   ) {
-    return this.buildingsService.create(userId, createBuildingDto);
+    return this.buildingsService.createBuilding(staffId, data);
   }
 
   @Get()
-  findAll(@GetUser('id') userId: number) {
-    return this.buildingsService.findAll(userId);
+  @ApiOperation({ summary: "Get current user's buildings list" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: CreatedResponseDto,
+  })
+  getListBuilding(@GetStaffId() staffId: number) {
+    return this.buildingsService.getListBuilding(staffId);
   }
 
   @Get(':id')
-  findOne(
-    @GetUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.buildingsService.findOne(userId, id);
+  @ApiOperation({ summary: 'Get building info' })
+  getBuilding(@GetStaffId() staffId: number, @Param() params: IdNumberParams) {
+    return this.buildingsService.getBuilding(staffId, params.id);
   }
 
   @Patch(':id')
-  async update(
-    @GetUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateBuildingDto: UpdateBuildingDto,
+  @ApiOperation({ summary: 'Update building info' })
+  updateBuilding(
+    @GetStaffId() staffId: number,
+    @Param() params: IdNumberParams,
+    @Body() data: UpdateBuildingDto,
   ) {
-    return this.buildingsService.update(userId, id, updateBuildingDto);
+    return this.buildingsService.updateBuilding(staffId, params.id, data);
   }
 
   @Delete(':id')
-  remove(@GetUser('id') userId: number, @Param('id', ParseIntPipe) id: number) {
-    return this.buildingsService.remove(userId, id);
+  @ApiOperation({ summary: 'Delete building' })
+  remove(@GetStaffId() staffId: number, @Param() params: IdNumberParams) {
+    return this.buildingsService.remove(staffId, params.id);
   }
 }

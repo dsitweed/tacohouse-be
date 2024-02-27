@@ -10,10 +10,10 @@ import { CreateBuildingDto, UpdateBuildingDto } from './dto';
 export class BuildingsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: number, createBuildingDto: CreateBuildingDto) {
+  async createBuilding(userId: number, data: CreateBuildingDto) {
     const building = await this.prisma.building.findUnique({
       where: {
-        ownerId_name: { ownerId: userId, name: createBuildingDto.name },
+        ownerId_name: { ownerId: userId, name: data.name },
       },
     });
 
@@ -24,13 +24,12 @@ export class BuildingsService {
     return this.prisma.building.create({
       data: {
         ownerId: userId,
-        ...createBuildingDto,
+        ...data,
       },
     });
   }
 
-  async findAll(userId: number) {
-    // Return buildings that belongs
+  async getListBuilding(userId: number) {
     return this.prisma.building.findMany({
       where: { ownerId: userId },
       include: {
@@ -48,9 +47,9 @@ export class BuildingsService {
     });
   }
 
-  async findOne(userId: number, id: number) {
+  async getBuilding(userId: number, id: number) {
     const building = await this.prisma.building.findUnique({
-      where: { id: id, ownerId: userId },
+      where: { id, ownerId: userId },
       include: {
         rooms: true,
         buildingUnitPrices: true,
@@ -64,22 +63,14 @@ export class BuildingsService {
     return building;
   }
 
-  async update(
+  async updateBuilding(
     userId: number,
     id: number,
     updateBuildingDto: UpdateBuildingDto,
   ) {
-    const building = await this.findOne(userId, id);
+    const building = await this.getBuilding(userId, id);
 
-    const isDuplicateName = await this.isDuplicateBuildingName(
-      updateBuildingDto.name,
-      userId,
-      id,
-    );
-
-    if (isDuplicateName) {
-      throw new BadRequestException('Building names cannot be duplicated');
-    }
+    await this.checkDuplicateBuildingName(updateBuildingDto.name, userId, id);
 
     return this.prisma.building.update({
       where: { id: building.id },
@@ -91,7 +82,7 @@ export class BuildingsService {
 
   // VERY VERY DANGEROUS FUNCTION
   async remove(userId: number, id: number) {
-    const building = await this.findOne(userId, id);
+    const building = await this.getBuilding(userId, id);
 
     if (!building) {
       throw new NotFoundException('Building not found');
@@ -134,29 +125,21 @@ export class BuildingsService {
     ]);
   }
 
-  /* HELP FUNCTION */
-
-  /**
-   * Check to true if the building name is duplicated
-   * 1 owner can not have 2 building have same name
-   * @param name
-   * @param ownerId
-   * @param buildingId
-   * @returns boolean
-   */
-  private async isDuplicateBuildingName(
+  private async checkDuplicateBuildingName(
     name: string | null,
     ownerId: number,
     buildingId: number,
   ) {
-    if (!name) return false;
+    if (!name) return;
 
     const existingBuilding = await this.prisma.building.findUnique({
       where: {
-        ownerId_name: { ownerId: ownerId, name: name },
+        ownerId_name: { ownerId, name },
       },
     });
-    if (existingBuilding && existingBuilding.id !== buildingId) return true;
-    else return false;
+
+    if (existingBuilding && existingBuilding.id !== buildingId) {
+      throw new BadRequestException('Building names cannot be duplicated');
+    }
   }
 }

@@ -25,7 +25,7 @@ export class RoomsService {
   async createRoom(userId: number, data: CreateRoomDto) {
     const { name, buildingId } = data;
 
-    const building = await this.buildingService.findOne(
+    const building = await this.buildingService.getBuilding(
       userId,
       data.buildingId,
     );
@@ -173,9 +173,6 @@ export class RoomsService {
     return plainToInstance(GetOwnerInfoResDto, room.building.owner);
   }
 
-  /**
-   * Check if room name in the same building is duplicated
-   */
   private async checkDuplicateRoomName(
     name: string | null,
     buildingId: number,

@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNumberString, IsOptional, Min } from 'class-validator';
-import { number } from 'joi';
+import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class BaseQueryDto {
   @IsOptional()
@@ -25,7 +24,7 @@ export class BaseQueryDto {
 }
 
 export class IdNumberParams {
-  @IsNumberString()
-  @Type(() => number)
+  @IsNumber()
+  @Type(() => Number)
   id!: number;
 }

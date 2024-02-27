@@ -9,8 +9,10 @@ export const GetUser = createParamDecorator(
   },
 );
 
-export const GetStaffId = createParamDecorator((ctx: ExecutionContext) => {
-  const request = ctx.switchToHttp().getRequest<Request>();
-  const user = request.user;
-  return user.id;
-});
+export const GetStaffId = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest<Request>();
+    const user = request.user;
+    return user.id;
+  },
+);
