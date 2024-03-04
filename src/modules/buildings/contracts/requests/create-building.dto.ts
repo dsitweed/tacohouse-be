@@ -13,4 +13,13 @@ export class CreateBuildingDto {
   @IsEnum(BuildingType)
   @IsNotEmpty()
   type: BuildingType;
+
+  @IsString()
+  ward: string;
+
+  @IsString()
+  district: string;
+
+  @IsString()
+  province: string;
 }

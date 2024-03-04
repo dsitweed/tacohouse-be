@@ -1,9 +1,11 @@
+import { seedLocation } from './seedLocation';
 import { seedMungData } from './seedMungData';
 import { seedSample } from './seedSample';
 
 async function main() {
-  await seedSample();
-  await seedMungData();
+  await seedLocation();
+  // await seedSample();
+  // await seedMungData();
 }
 
 main()

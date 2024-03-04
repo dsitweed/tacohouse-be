@@ -2,6 +2,7 @@ import { AuthModule } from './auth/auth.module';
 import { BuildingUnitPricesModule } from './building-unit-prices/building-unit-prices.module';
 import { BuildingsModule } from './buildings/buildings.module';
 import { ChatModule } from './chat/chat.module';
+import { CommonModule } from './common/common.module';
 import { FacilitiesModule } from './facilities/facilities.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { ManagersModule } from './managers/managers.module';
@@ -22,4 +23,5 @@ export const businessModules = [
   RoomsModule,
   UsersModule,
   VotesModule,
+  CommonModule,
 ];

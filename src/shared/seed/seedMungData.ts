@@ -113,6 +113,9 @@ async function createBuilding(buildingData: createBuildingI, owner: User) {
       address: buildingData.address,
       ownerId: buildingData.ownerId,
       type: buildingData.type,
+      ward: 'Láng Thượng',
+      district: 'Đống Đa',
+      province: 'Hà Nội',
       // Create building unit prices for each building
       buildingUnitPrices: {
         createMany: {
