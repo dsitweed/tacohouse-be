@@ -7,6 +7,9 @@ import { configSchema } from './config.schema';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configSchema,
+      envFilePath: process.env.NODE_ENV
+        ? `.env.${process.env.NODE_ENV}`
+        : '.env',
     }),
   ],
 })

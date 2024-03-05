@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './dto';
 import { JwtGuard } from 'src/common/guard';
-import { GetUser } from 'src/common/decorator';
+import { GetStaffId, GetUser } from 'src/common/decorator';
 import { RefreshTokenGuard } from 'src/common/guard/refresh-token.guard';
 import { JwtPayload } from 'src/common/interface';
 import { ApiTags } from '@nestjs/swagger';
@@ -33,8 +33,8 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(JwtGuard)
   @Post('sign-out')
-  signOut(@GetUser('id') userId: number) {
-    return this.authService.signOut(userId);
+  signOut(@GetStaffId() staffId: number) {
+    return this.authService.signOut(staffId);
   }
 
   @UseGuards(RefreshTokenGuard)
