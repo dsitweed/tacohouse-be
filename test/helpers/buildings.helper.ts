@@ -1,6 +1,6 @@
-import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
-import { Building, BuildingType, PrismaClient } from '@prisma/client';
+import { Building, PrismaClient } from '@prisma/client';
+import { fakeCreateBuilding } from '../mocks';
 
 export class BuildingsHelper {
   private app: INestApplication;
@@ -10,18 +10,16 @@ export class BuildingsHelper {
     this.prisma = global.testContext.prisma;
   }
 
-  async createBuilding(ownerId: number, override: Partial<Building>) {
+  async createBuilding(ownerId: number, override: Partial<Building> = {}) {
     return this.prisma.building.create({
       data: {
         ownerId,
-        name: faker.string.alpha(8),
-        address: faker.location.streetAddress(),
-        ward: 'Bách Khoa',
-        district: 'Quận Hai Bà Trưng',
-        province: 'Thành phố Hà Nội',
-        type: BuildingType.HOSTEL,
-        ...override,
+        ...fakeCreateBuilding(override),
       },
     });
+  }
+
+  async clearBuildings() {
+    await this.prisma.building.deleteMany();
   }
 }

@@ -1,9 +1,10 @@
-import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
-import { hash } from 'argon2';
 import { AuthModule } from '../../src/modules/auth/auth.module';
 import { AuthService } from '../../src/modules/auth/auth.service';
+import { fakeUser } from '../mocks';
+
+export type AuthHeader = Record<'Authorization', string>;
 
 export class AuthHelper {
   private app: INestApplication;
@@ -15,26 +16,14 @@ export class AuthHelper {
     this.authService = this.app.select(AuthModule).get(AuthService);
   }
 
-  async createUser(override: Partial<User>) {
+  async createUser(override: Partial<User> = {}) {
     return this.prisma.user.create({
-      data: {
-        role: 'ADMIN',
-        email: faker.internet.email(),
-        ...override,
-        password: await hash(override.password || '123456'),
-      },
+      data: await fakeUser(override),
     });
   }
 
-  async createUserWithToken(override: Partial<User>) {
-    const user = await this.prisma.user.create({
-      data: {
-        role: 'ADMIN',
-        email: faker.internet.email(),
-        ...override,
-        password: await hash(override.password || '123456'),
-      },
-    });
+  async createUserWithToken(override: Partial<User> = {}) {
+    const user = await this.createUser(override);
 
     const jwtPayload = {
       userId: user.id,
@@ -64,7 +53,7 @@ export class AuthHelper {
     await this.prisma.user.deleteMany();
   }
 
-  async fakeAuthHeader(overrideUser: Partial<User>) {
+  async fakeAuthHeader(overrideUser: Partial<User> = {}): Promise<AuthHeader> {
     const {
       tokens: { accessToken },
     } = await this.createUserWithToken(overrideUser);

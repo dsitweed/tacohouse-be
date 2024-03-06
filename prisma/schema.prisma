@@ -110,7 +110,7 @@ model Building {
   buildingUnitPrices BuildingUnitPrice[]
 
   ownerId Int
-  owner   User @relation(fields: [ownerId], references: [id])
+  owner   User @relation(fields: [ownerId], references: [id], onDelete: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

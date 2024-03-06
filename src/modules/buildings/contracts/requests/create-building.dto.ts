@@ -2,6 +2,10 @@ import { BuildingType } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateBuildingDto {
+  constructor(partial: Partial<CreateBuildingDto>) {
+    Object.assign(this, partial);
+  }
+
   @IsString()
   @IsNotEmpty()
   name: string;
