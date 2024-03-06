@@ -99,6 +99,9 @@ model Building {
   id            Int          @id @default(autoincrement())
   name          String
   address       String
+  ward          String
+  district      String
+  province      String
   brandImageUrl String?
   type          BuildingType
 
@@ -106,9 +109,8 @@ model Building {
   invoices           Invoice[]
   buildingUnitPrices BuildingUnitPrice[]
 
-  // Relation fileds
   ownerId Int
-  owner   User @relation(fields: [ownerId], references: [id])
+  owner   User @relation(fields: [ownerId], references: [id], onDelete: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -264,4 +266,32 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   @@map("invoices")
+}
+
+model Province {
+  code      String     @id
+  name      String     @unique
+  districts District[]
+  wards     Ward[]
+}
+
+model District {
+  code         String   @id
+  name         String
+  provinceCode String
+  province     Province @relation(fields: [provinceCode], references: [code])
+  wards        Ward[]
+
+  @@unique([name, provinceCode])
+}
+
+model Ward {
+  code         String   @id
+  name         String
+  provinceCode String
+  province     Province @relation(fields: [provinceCode], references: [code])
+  districtCode String
+  district     District @relation(fields: [districtCode], references: [code])
+
+  @@unique([name, districtCode])
 }

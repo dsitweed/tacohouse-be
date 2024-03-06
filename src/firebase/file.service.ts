@@ -3,7 +3,7 @@ import { FirebaseService } from './firebase.service';
 import {
   getPathStorageFromUrl,
   separateFilenameAndExtension,
-} from 'src/common/utils';
+} from 'src/shared/utils';
 
 @Injectable()
 export class FileService {

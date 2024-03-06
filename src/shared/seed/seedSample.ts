@@ -134,6 +134,9 @@ async function createBuilding(managerId: number) {
         address: `${faker.location.city()}, ${faker.location.country()}`,
         ownerId: managerId,
         type: 'HOSTEL',
+        ward: 'Láng Thượng',
+        district: 'Đống Đa',
+        province: 'Hà Nội',
       },
     });
 
